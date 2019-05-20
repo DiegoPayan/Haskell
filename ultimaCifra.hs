@@ -1,0 +1,1 @@
+ultimaCifra x = rem x 10

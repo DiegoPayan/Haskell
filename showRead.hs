@@ -1,0 +1,1 @@
+show -- devuelve cadena de texto

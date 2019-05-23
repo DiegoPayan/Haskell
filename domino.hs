@@ -1,25 +1,24 @@
 import System.Random
 
 fichas :: [[Integer]]
-fichas = [[x,y] | x<-[0..6] , y<-[x..6] , x + y > 0]
+fichas = [[x,y] | x<-[0..6] , y<-[x..6] ]
 
-newRand = randomRIO (0, 16 :: Int)
+fichaAleatoria :: [a] -> IO a
+fichaAleatoria fichas = do
+    i <- randomRIO (0, 27)
+    return $ fichas !! i
 
-randomList :: Integer -> IO([Integer])
-randomList 0 = return []
-randomList n = do
-    r <- randomRIO(1,16)
-    rs <- randomList(n-1)
-    return (r:rs)
+jugador1 :: [Integer]
+jugador1 = []
+
+jugador2 :: [Integer]
+jugador2 = []
 
 main = do
-         putStrLn "Inicia reparto de fichas"
-         let muestra = fichas
-         putStrLn ("Muestra:" ++ show muestra)
-         let rand = randomList 10
-         putStrLn . show =<< rand
+        putStrLn "Inicia reparto de fichas"
+        let fichasRepartidas = reparteFichas jugador1 jugador2
+        putStrLn "Fin"
+         -- putStrLn . show =<< rand
 
--- let lista = randomRIO (0, 16 :: Int)
--- putStrLn . show =<< lista
--- let elem = muestra !! 3
--- putStrLn (" " ++ show elem)
+reparteFichas :: [Integer] -> [Integer] -> [[Integer]]
+reparteFichas a b = [a]

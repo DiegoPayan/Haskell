@@ -18,7 +18,7 @@ doblesPosImpar2 xs = xs
 --Forma 3 fx es una funcion local, se declaran con where
 -- even para saber si es par , odd es la contrario
 doblesPosImpar3 :: [Integer] -> [Integer]
-doblesPosImpar3 xs = [ fx x y | (x,y) <- zip xs [0..] ]
+doblesPosImpar3 xs = [ fx x y | (x,y) <- zip [0..] xs ]
     where fx n d | odd n = 2 * d
                  | otherwise = d
 

@@ -1,32 +1,48 @@
+
 import NumeroRandom
+
+import Data.List (sortBy)
+import Data.Ord (comparing)
 
 -- Lista de las 28 fichas del juego
 fichas :: [[Int]]
 fichas = [ [x,y] | x<-[0..6] , y<-[x..6] ]
 
--- Lista de randoms para seleccionar fichas para el jugador 1
-random1 :: [[Int]]
-random1 = [[a],[b],[c],[d],[e],[f],[g]]
+random1 :: [Int]
+random1 = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab]
 
--- Lista de randoms para seleccionar fichas para el jugador 2
-random2 :: [[Int]]
-random2 = [[h],[i],[j],[k],[l],[m],[n]]
+fichasNumeradas :: [(Int, [Int])]
+fichasNumeradas = [ (x,y) | (x,y) <- zip random1 fichas]
 
--- Fichas del jugador 1
+fichasDesordenadas :: [(Int, [Int])]
+fichasDesordenadas = sortBy (comparing $ fst) fichasNumeradas
+
+fichasDesordenadasSinIndice :: [[Int]]
+fichasDesordenadasSinIndice = [ snd x | x<-fichasDesordenadas ]
+
 jugador1 :: [[Int]]
-jugador1 = []
+jugador1 = take 7 fichasDesordenadasSinIndice
 
--- Fichas del jugador 2
+fichasDesordenadas1 :: [[Int]]
+fichasDesordenadas1 = drop 7 fichasDesordenadasSinIndice
+
 jugador2 :: [[Int]]
-jugador2 = []
+jugador2 = take 7 fichasDesordenadas1
+
+fichasRestantes :: [[Int]]
+fichasRestantes = drop 7 fichasDesordenadas1
+
+jugadorComienza :: Int
+jugadorComienza
+    | [5,5] `elem` jugador1 = 1
+    | [5,5] `elem` jugador2 = 2
+    | otherwise = 1
 
 -- Función principal del programa
 main = do
     putStrLn "Inicia reparto de fichas"
-    let sptm = func 0 random1
-    print sptm
     putStrLn "Fin"
-        -- putStrLn . show =<< rand
+    -- putStrLn . show =<< rand
 
 
 reparteFichas :: Int -> [[Int]] -> [[Int]]

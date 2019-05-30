@@ -38,36 +38,14 @@ jugadorComienza
     | [5,5] `elem` jugador2 = 2
     | otherwise = 1
 
+existe55 :: Bool
+existe55
+    | [5,5] `elem` jugador1 || [5,5] `elem` jugador2 = True
+    | otherwise = False
+
+
 -- Función principal del programa
 main = do
     putStrLn "Inicia reparto de fichas"
     putStrLn "Fin"
     -- putStrLn . show =<< rand
-
-
-reparteFichas :: Int -> [[Int]] -> [[Int]]
-reparteFichas i rand = [  fichas!!xs  | xs <- rand!!i ]
-
-func i xs =
-    if i < 7
-        then do
-            let ficha = reparteFichas i xs
-            let fichaRes = concat ficha
-            let lista = sacaFicha fichaRes fichas
-            func (i+1) lista
-        else
-            i
-
-sacaFicha :: [Int] -> [[Int]] -> [[Int]]
-sacaFicha _ [] = []
-sacaFicha x (y:ys)  | x ==  y = sacaFicha x ys
-                    | otherwise = y : sacaFicha x ys
-
---Hacer un metodo toma y elimina, toma y elimina
-
-{-
-where removeItem x (y:ys)
-                | y == [] = []
-                | x == y = removeItem x ys
-                | otherwise = y : removeItem x ys
--}

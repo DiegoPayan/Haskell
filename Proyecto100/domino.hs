@@ -32,20 +32,24 @@ jugador2 = take 7 fichasDesordenadas1
 fichasRestantes :: [[Int]]
 fichasRestantes = drop 7 fichasDesordenadas1
 
-jugadorComienza :: Int
-jugadorComienza
-    | [5,5] `elem` jugador1 = 1
-    | [5,5] `elem` jugador2 = 2
-    | otherwise = 1
+comeCarta :: Int
+comeCarta turno
+    |turno == 1 = concatenaFichaCome 1 head fichasRestantes 
+    |otherwise concatenaFichaCome 2 head fichasRestantes
 
-existe55 :: Bool
-existe55
-    | [5,5] `elem` jugador1 || [5,5] `elem` jugador2 = True
-    | otherwise = False
+jugadorComienzaInicio :: Int -> Int
+jugadorComienza turno
+jugadorComienzaInicio
+    | [5,5] `elem` jugador1 = turnoJugador1
+    | [5,5] `elem` jugador2  = turnoJugador2
+    | otherwise = comeCarta turno
 
+concatenaFichaCome  turno x |turno == 1 = jugador1 ++ [x] 
+                            |otherwise jugador2 ++ [x] 
 
 -- Función principal del programa
 main = do
     putStrLn "Inicia reparto de fichas"
+    jugadorComienza 1
     putStrLn "Fin"
     -- putStrLn . show =<< rand

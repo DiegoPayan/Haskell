@@ -1,7 +1,7 @@
 
 import NumeroRandom
 
-import Data.List (sortBy)
+import Data.List 
 import Data.Ord (comparing)
 
 -- Lista de las 28 fichas del juego
@@ -32,24 +32,129 @@ jugador2 = take 7 fichasDesordenadas1
 fichasRestantes :: [[Int]]
 fichasRestantes = drop 7 fichasDesordenadas1
 
-comeCarta :: Int
-comeCarta turno
-    |turno == 1 = concatenaFichaCome 1 head fichasRestantes 
-    |otherwise concatenaFichaCome 2 head fichasRestantes
+jugadorComienzaInicio :: [[Int]]
+jugadorComienzaInicio 
+    | [5,5] `elem` jugador1 =[[1],[5,5]]
+    | [5,5] `elem` jugador2  =[[2],[5,5]]
+    | [0,5] `elem` jugador1 =[[1],[0,5]]
+    | [0,5] `elem` jugador2  = [[2],[0,5]]
+    | [2,3] `elem` jugador1 = [[1],[2,3]]
+    | [2,3] `elem` jugador2  = [[2],[2,3]]
+    | [6,4] `elem` jugador1 = [[1],[6,4]]
+    | [6,4] `elem` jugador2  = [[2],[6,4]]
+    | [1,4] `elem` jugador1 = [[1],[1,4]]
+    | [1,4] `elem` jugador2  = [[2],[1,4]]
+    | otherwise =[[0],[0,0]]
 
-jugadorComienzaInicio :: Int -> Int
-jugadorComienza turno
-jugadorComienzaInicio
-    | [5,5] `elem` jugador1 = turnoJugador1
-    | [5,5] `elem` jugador2  = turnoJugador2
-    | otherwise = comeCarta turno
+fichaPone ::[[Int]] -> Int -> [Int] -> [[Int]] 
+fichaPone listaJugador turno aBorrar
+    | length listaJugador > 0 = listaJugador \\ [aBorrar]
+    | otherwise = [[0,0]]
+   
+concatenaFichaConLista :: Int -> [[Int]] ->[Int] ->Int ->[[Int]]
+concatenaFichaConLista tipo xs x direccion
+    | x == [5,5] && tipo == 1 = xs ++ [x] --1 =hori<ontal
+    | x == [5,5] && tipo == 0 = xs ++ [x] --0 = vertical
+    | tipo == 1 && direccion == 1 = [x] ++ xs --direccion = 1 =derecha
+    | tipo == 1 && direccion == 0 = xs ++ [x] --direccion = 0 =izquierda
+    |otherwise = [[]]
 
-concatenaFichaCome  turno x |turno == 1 = jugador1 ++ [x] 
-                            |otherwise jugador2 ++ [x] 
+tomaCabecera :: [[Int]] -> [Int]
+tomaCabecera xs = head xs
 
--- Función principal del programa
+tomaUltimo :: [[Int]] -> [Int]
+tomaUltimo xs = last xs
+
+verificaQuePone :: [Int]->[Int]->[[Int]]->[Int]
+verificaQuePone cabecera ultimo jugadorAct
+    | length (filter (elem (head cabecera)) jugadorAct) > 0 && head (filter (elem (head cabecera)) jugadorAct) !!0 == head cabecera= head (filter (elem (head cabecera)) jugadorAct) ++ [1,1,1]--1=reversa 1=horizontal 1=derecha 0=izquiera
+    | length (filter (elem (head cabecera)) jugadorAct) > 0 && head (filter (elem (head cabecera)) jugadorAct) !!1 == head cabecera= head (filter (elem (head cabecera)) jugadorAct) ++ [0,1,1]--1=reversa 1=horizontal 1=derecha 0=izquiera
+    | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!1 == last ultimo = head (filter (elem (last ultimo)) jugadorAct) ++ [1,1,0]--0=dejalacomoesta 
+    | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!0 == last ultimo  = head (filter (elem (last ultimo)) jugadorAct) ++ [0,1,0]--0=dejalacomoesta 
+    | otherwise = []
+
+
+acomodadorFichas:: Int -> [Int] -> [Int]
+acomodadorFichas sino ficha
+    | sino == 1 = reverse ficha
+    | otherwise = ficha
+
+sacaTurno:: Int -> Int
+sacaTurno x
+    | x == 1 = 2
+    | otherwise = 1
+
 main = do
-    putStrLn "Inicia reparto de fichas"
-    jugadorComienza 1
-    putStrLn "Fin"
-    -- putStrLn . show =<< rand
+    print "FICHAS JUGADOR 1:"
+    print jugador1
+    print "_______________________________"
+    print "FICHAS JUGADOR 2:"
+    print jugador2
+    print "_______________________________"
+    print "FICHAS RESTANTES"
+    print fichasRestantes
+    print "_______________________________"
+    let quienIniciaTodo = jugadorComienzaInicio
+    let quienInicia = quienIniciaTodo!!0
+    let queTrae = quienIniciaTodo!!1
+    print "TURNO JUGADOR: "
+    print quienInicia
+    print "TRAE LA CARTA:"
+    print queTrae
+    print "_______________________________"
+    if quienInicia!!0 == 1
+        then do
+            let quePone = fichaPone jugador1 1 queTrae
+            let listaJugadorN = quePone 
+            let listaHorizontal = concatenaFichaConLista 1 [] queTrae 1 
+            let listaVertical = concatenaFichaConLista 0 [] queTrae 1
+            print "INICIO LISTAS:"
+            print "Lista Horizontal:"
+            print listaHorizontal
+            print "Lista Vertical"
+            print listaVertical
+            print listaJugadorN
+            siguienteTurno listaHorizontal listaVertical listaJugadorN 2 jugador2 0 0 fichasRestantes
+        else do
+            let quePone = fichaPone jugador2 2 queTrae
+            let listaJugadorN = quePone 
+            let listaHorizontal = concatenaFichaConLista 1 [] queTrae 1
+            let listaVertical = concatenaFichaConLista 0 [] queTrae 1
+            print "INICIO LISTAS:"
+            print "Lista Horizontal:"
+            print listaHorizontal
+            print "Lista Vertical"
+            print listaVertical
+            print listaJugadorN
+            siguienteTurno listaHorizontal listaVertical listaJugadorN 1 jugador1 0 0 fichasRestantes
+    
+
+           
+siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJugadorSig puntosJugador1 puntosJugador2 fichasRestantes= do
+    print "SIGUIENTE TURNO"
+    print turnoActual
+    let sacaTurnoNuevo = sacaTurno turnoActual
+    print "_______________________________"
+    let cabecera = tomaCabecera listaHorizontal
+    let ultimo = tomaUltimo listaHorizontal
+    let fichaQuePondra = verificaQuePone cabecera ultimo listaJugadorSig
+    let fichita = (take 2 fichaQuePondra)
+    let listaJugadorNueva = fichaPone listaJugadorSig 1 fichita
+    let reverseo = (fichaQuePondra !! 2)
+    let verticalUhorizontal = (fichaQuePondra!!3)
+    let aQueDireccion = (fichaQuePondra!!4)
+    print "PONDRA LA FICHA"
+    print fichita
+    print "_______________________________"
+    let acomodaFicha = acomodadorFichas reverseo fichita
+    let listaNuevaHorizontal = concatenaFichaConLista 1 listaHorizontal acomodaFicha aQueDireccion
+    print listaNuevaHorizontal
+    print acomodaFicha
+    print reverseo
+    print verticalUhorizontal
+    siguienteTurno listaNuevaHorizontal listaVertical listaJugadorNueva  sacaTurnoNuevo  listaJugadorN  0 0 fichasRestantes
+    -- print listaHorizontal
+    -- print listaVertical
+    -- print turnoActual
+    -- print listaJugadorN
+    -- print listaJugadorSig

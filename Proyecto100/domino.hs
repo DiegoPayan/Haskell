@@ -4,7 +4,7 @@ import NumeroRandom
 import Data.List 
 import Data.Ord (comparing)
 
-tabla = [1,3,2,3,5,6,7,8]
+sumaPosibles = [5,10,15,20]
 -- Lista de las 28 fichas del juego
 fichas :: [[Int]]
 fichas = [ [x,y] | x<-[0..6] , y<-[x..6] ]
@@ -73,6 +73,7 @@ verificaQuePone cabecera ultimo jugadorAct fichasRestantes
     | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!1 == last ultimo = (head (filter (elem (last ultimo)) jugadorAct) ++ [1,1,0],fichasRestantes ,jugadorAct)--0=dejalacomoesta 
     | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!0 == last ultimo  =( head (filter (elem (last ultimo)) jugadorAct) ++ [0,1,0], fichasRestantes,jugadorAct)--0=dejalacomoesta 
     | length fichasRestantes == 0 = ([0,0,0,0,0], fichasRestantes,jugadorAct)
+    | length jugadorAct == 0 = ([0,0,0,0,0], fichasRestantes,jugadorAct)
     | otherwise = comeFichas cabecera ultimo jugadorAct fichasRestantes 
 
 comeFichas  :: [Int] -> [Int] -> [[Int]] -> [[Int]] -> ([Int], [[Int]],[[Int]])
@@ -90,6 +91,13 @@ sacaTurno:: Int -> Int
 sacaTurno x
     | x == 1 = 2
     | otherwise = 1
+
+verificaSiGanaPuntos:: Int ->Int-> [[Int]]-> (Int, Int)
+verificaSiGanaPuntos turno sumaPuntos lista
+    | (head lista)!!0 == (head lista)!!1 && (last lista)!!0 == (last lista)!!1 && sumaMulas elem sumaPosibles =(turno,sumaMulas)
+    | (head lista)!!0 == (head lista)!!1 && ((head lista)!!0 + (head lista)!!1+(last lista)!!1) elem sumaPosibles =(turno, ((head lista)!!0 + (head lista)!!1+(last lista)!!1) )
+    |(last lista)!!0 == (last lista)!!1 && ((head lista)!!0 + (last lista)!!0 + (last lista)!!1) elem sumaPosibles = (turno +((head lista)!!0 + (last lista)!!0 + (last lista)!!1))
+    where sumaMulas=((head lista)!!0+ (head lista)!!1+(last lista)!!0+(last lista)!!1)
 
 main = do
 
@@ -149,7 +157,7 @@ siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJuga
     let (fichaQuePondra, fichasRestantes1,fichasNuevasJugador) = verificaQuePone cabecera ultimo listaJugadorSig fichasRestantes
     let fichita = (take 2 fichaQuePondra)
 
-    print "ff"
+    print "Fichas restantes para comer"
     print fichasRestantes1--
     if fichita == [0,0] && length fichasRestantes1 == 0 
         then do

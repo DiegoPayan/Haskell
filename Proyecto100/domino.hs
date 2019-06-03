@@ -4,7 +4,7 @@ import NumeroRandom
 import Data.List 
 import Data.Ord (comparing)
 
-sumaPosibles = [5,10,15,20]
+sumaPosibles = [5,10,15,20,25,30,35,40,45,50,55,60]
 -- Lista de las 28 fichas del juego
 fichas :: [[Int]]
 fichas = [ [x,y] | x<-[0..6] , y<-[x..6] ]
@@ -72,8 +72,8 @@ verificaQuePone cabecera ultimo jugadorAct fichasRestantes
     | length (filter (elem (head cabecera)) jugadorAct) > 0 && head (filter (elem (head cabecera)) jugadorAct) !!1 == head cabecera=( head (filter (elem (head cabecera)) jugadorAct) ++ [0,1,1],fichasRestantes,jugadorAct)--1=reversa 1=horizontal 1=derecha 0=izquiera
     | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!1 == last ultimo = (head (filter (elem (last ultimo)) jugadorAct) ++ [1,1,0],fichasRestantes ,jugadorAct)--0=dejalacomoesta 
     | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!0 == last ultimo  =( head (filter (elem (last ultimo)) jugadorAct) ++ [0,1,0], fichasRestantes,jugadorAct)--0=dejalacomoesta 
-    | length fichasRestantes == 0 = ([0,0,0,0,0], fichasRestantes,jugadorAct)
-    | length jugadorAct == 0 = ([0,0,0,0,0], fichasRestantes,jugadorAct)
+    | length fichasRestantes == 0 = ([100,100,0,0,0], fichasRestantes,jugadorAct) --100 sin cartas restantes
+    | length jugadorAct == 0 = ([10,10,0,0,0], fichasRestantes,jugadorAct) --10 sin cartas
     | otherwise = comeFichas cabecera ultimo jugadorAct fichasRestantes 
 
 comeFichas  :: [Int] -> [Int] -> [[Int]] -> [[Int]] -> ([Int], [[Int]],[[Int]])
@@ -94,42 +94,51 @@ sacaTurno x
 
 verificaSiGanaPuntos:: Int ->Int-> [[Int]]-> (Int, Int)
 verificaSiGanaPuntos turno sumaPuntos lista
-    | (head lista)!!0 == (head lista)!!1 && (last lista)!!0 == (last lista)!!1 && sumaMulas elem sumaPosibles =(turno,sumaMulas)
-    | (head lista)!!0 == (head lista)!!1 && ((head lista)!!0 + (head lista)!!1+(last lista)!!1) elem sumaPosibles =(turno, ((head lista)!!0 + (head lista)!!1+(last lista)!!1) )
-    |(last lista)!!0 == (last lista)!!1 && ((head lista)!!0 + (last lista)!!0 + (last lista)!!1) elem sumaPosibles = (turno +((head lista)!!0 + (last lista)!!0 + (last lista)!!1))
-    where sumaMulas=((head lista)!!0+ (head lista)!!1+(last lista)!!0+(last lista)!!1)
+    | (head lista)!!0 == (head lista)!!1 && (last lista)!!0 == (last lista)!!1 && sumaMulas `elem` sumaPosibles =(turno,sumaMulas+sumaPuntos)
+    | (head lista)!!0 == (head lista)!!1 && ((head lista)!!0 + (head lista)!!1+(last lista)!!1) `elem` sumaPosibles =(turno, (((head lista)!!0) +( (head lista)!!1) +((last lista)!!1)) +sumaPuntos)
+    |(last lista)!!0 == (last lista)!!1 && ((head lista)!!0 + (last lista)!!0 + (last lista)!!1) `elem` sumaPosibles = (turno ,(((head lista)!!0 )+ ((last lista)!!0 )+ ((last lista)!!1))+sumaPuntos)
+    | ((head lista)!!0 + (last lista)!!1) `elem` sumaPosibles && ((last lista)!!0  /= (last lista)!!1) = (turno, ((head lista)!!0 + (last lista)!!1 + sumaPuntos))
+    | ((head lista)!!0 + (last lista)!!1) `elem` sumaPosibles && ((head lista)!!0  /= (head lista)!!1) = (turno, ((head lista)!!0 + (last lista)!!1 + sumaPuntos))
+    | otherwise = (turno,0+sumaPuntos)
+    where sumaMulas=(((head lista)!!0) +( (head lista)!!1) + ((last lista)!!0 )+((last lista)!!1))
+
+sumaFichasQuedantes:: [[Int]]->Int
+sumaFichasQuedantes listaQueda = sum(concat listaQueda)
+
+sumaAlMultiploCercano::Int ->Int
+sumaAlMultiploCercano suma
+    | suma < 10 = 5
+    | suma < 15 = 10
+    | suma < 20 = 15
+    | suma < 25 = 20
+    | suma < 30 = 25
+    | suma < 35 = 30
+    | otherwise = 35
+
+quienGanador :: Int -> Int-> Int -> Int -> Int->(Int , Int)
+quienGanador turnoActual puntosJugadorSig alMutiploCercano sacaTurnoNuevo puntosJugadorN 
+    | puntosJugadorSig > puntosJugadorN = (turnoActual, (alMutiploCercano+puntosJugadorSig))
+    | otherwise = (sacaTurnoNuevo, (alMutiploCercano + puntosJugadorN))
 
 main = do
-
-    print "FICHAS JUGADOR 1:"
-    print jugador1
-    print "_______________________________"
-    print "FICHAS JUGADOR 2:"
-    print jugador2
-    print "_______________________________"
-    print "FICHAS RESTANTES"
-    print fichasRestantes
-    print "_______________________________"
+    print "INICIA EL JUEGO"
+    putStrLn ("FICHAS JUGADOR 1: " ++ show jugador1 )
+    putStrLn ("FICHAS JUGADOR 2: " ++ show jugador2 )
+    putStrLn ("FICHAS PARA COMER: " ++ show fichasRestantes )
+    print "_________________________________________________"
     let quienIniciaTodo = jugadorComienzaInicio
     let quienInicia = quienIniciaTodo!!0
     let queTrae = quienIniciaTodo!!1
-    print "TURNO JUGADOR: "
-    print quienInicia
-    print "TRAE LA CARTA:"
-    print queTrae
-    print "_______________________________"
+    putStrLn ("TURNO JUGADOR: " ++ show quienInicia ++ "INICIA CON CARTA: " ++ show queTrae)
     if quienInicia!!0 == 1
         then do
             let quePone = fichaPone jugador1 1 queTrae
             let listaJugadorN = quePone 
             let listaHorizontal = concatenaFichaConLista 1 [] queTrae 1 
             let listaVertical = concatenaFichaConLista 0 [] queTrae 1
-            print "INICIO LISTAS:"
-            print "Lista Horizontal:"
-            print listaHorizontal
-            print "Lista Vertical"
-            print listaVertical
-            print listaJugadorN
+            print "INICIO LISTAS: "
+            putStrLn ("Lista Horizontal: " ++ show listaHorizontal)
+            putStrLn ("Lista Vertical: " ++ show listaVertical)
             siguienteTurno listaHorizontal listaVertical listaJugadorN 2 jugador2 0 0 fichasRestantes
         else do
             let quePone = fichaPone jugador2 2 queTrae
@@ -137,56 +146,47 @@ main = do
             let listaHorizontal = concatenaFichaConLista 1 [] queTrae 1
             let listaVertical = concatenaFichaConLista 0 [] queTrae 1
             print "INICIO LISTAS:"
-            print "Lista Horizontal:"
-            print listaHorizontal
-            print "Lista Vertical"
-            print listaVertical
-            print listaJugadorN
+
+            putStrLn ("Lista Horizontal: " ++ show listaHorizontal)
+            putStrLn ("Lista Vertical: " ++ show listaVertical)
             siguienteTurno listaHorizontal listaVertical listaJugadorN 1 jugador1 0 0 fichasRestantes
-    
 
            
-siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJugadorSig puntosJugador1 puntosJugador2 fichasRestantes= do
-    print "SIGUIENTE TURNO"
-    print turnoActual
-    print listaJugadorSig
-    let sacaTurnoNuevo = sacaTurno turnoActual
+siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJugadorSig puntosJugadorN puntosJugadorSig fichasRestantes= do
+    print "____________________________________________________________________________________________________-___________"
+    putStrLn ("SIGUIENTE TURNO: JUGADOR= " ++ show turnoActual)
+    putStrLn("LISTA DEL JUGADOR: " ++ show listaJugadorSig)
     print "_______________________________"
+    let sacaTurnoNuevo = sacaTurno turnoActual
     let cabecera = tomaCabecera listaHorizontal
     let ultimo = tomaUltimo listaHorizontal
     let (fichaQuePondra, fichasRestantes1,fichasNuevasJugador) = verificaQuePone cabecera ultimo listaJugadorSig fichasRestantes
     let fichita = (take 2 fichaQuePondra)
-
-    print "Fichas restantes para comer"
-    print fichasRestantes1--
-    if fichita == [0,0] && length fichasRestantes1 == 0 
+    putStrLn ("Fichas restantes para comer: " ++ show fichasRestantes1)
+    if (fichita == [100,100] && length fichasRestantes1 == 0 ) || (fichita ==[10,10]|| length listaJugadorN == 0 )
         then do
+            let fichasDelQueTieneAun = sumaFichasQuedantes fichasNuevasJugador
+            let alMutiploCercano = sumaAlMultiploCercano fichasDelQueTieneAun
+            let (quienGana, puntosTotales) = quienGanador turnoActual puntosJugadorSig alMutiploCercano sacaTurnoNuevo puntosJugadorN
+            print ""
+            print "-----------------------------------FIN DEL JUEGO----------------------------------"
+            putStrLn ("FICHAS JUGADOR " ++ show turnoActual ++ " RestoFichas " ++ show listaJugadorSig  ++ "-- sus puntos son :" ++ show puntosJugadorSig)
+            putStrLn ("Suma de sus fichas: " ++ show fichasDelQueTieneAun ++ " = " ++ show alMutiploCercano)
             print "_______________________________"
-            print "Acabo Juego"
-            print "FICHAS JUGADOR :"
-            print turnoActual
-            print listaJugadorSig
+            putStrLn ("FICHAS JUGADOR " ++ show sacaTurnoNuevo ++ " RestoFichas " ++ show listaJugadorN  ++ "-- sus puntos son :" ++ show puntosJugadorN)
             print "_______________________________"
-            print "FICHAS JUGADOR :"
-            print sacaTurnoNuevo
-            print listaJugadorN
-            print "_______________________________"
-                else do 
+            putStrLn ("El ganador es: " ++ "Jugador "++show quienGana ++ " con " ++ show puntosTotales ++ " puntos")
+         else do 
             let listaJugadorNueva = fichaPone fichasNuevasJugador 1 fichita --
             let reverseo = (fichaQuePondra !! 2)
             let verticalUhorizontal = (fichaQuePondra!!3)
             let aQueDireccion = (fichaQuePondra!!4)
             let acomodaFicha = acomodadorFichas reverseo fichita
-            print "PONDRA LA FICHA"
-            print fichita
-            print acomodaFicha
+            putStrLn("PONDRA LA FICHA: " ++ show fichita ++ " -> " ++ show acomodaFicha  )
             print "_______________________________"
             let listaNuevaHorizontal = concatenaFichaConLista 1 listaHorizontal acomodaFicha aQueDireccion --
-            print listaNuevaHorizontal    
-            -- print verticalUhorizontal
-            siguienteTurno listaNuevaHorizontal listaVertical listaJugadorNueva  sacaTurnoNuevo  listaJugadorN  0 0 fichasRestantes1
-        -- print listaHorizontal
-        -- print listaVertical
-        -- print turnoActual
-        -- print listaJugadorN
-        -- print listaJugadorSig
+            print listaNuevaHorizontal   
+            let (turno, puntosAct) =  verificaSiGanaPuntos turnoActual puntosJugadorSig listaNuevaHorizontal
+            putStrLn ("PUNTOS:" ++ show puntosAct)
+            siguienteTurno listaNuevaHorizontal listaVertical listaJugadorNueva  sacaTurnoNuevo  listaJugadorN  puntosAct puntosJugadorN  fichasRestantes1
+     

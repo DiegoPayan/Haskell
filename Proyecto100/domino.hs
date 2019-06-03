@@ -4,7 +4,7 @@ import NumeroRandom
 import Data.List 
 import Data.Ord (comparing)
 
-sumaPosibles = [5,10,15,20,25,30,35,40,45,50,55,60]
+sumaPosibles = [5,10..60]
 -- Lista de las 28 fichas del juego
 fichas :: [[Int]]
 fichas = [ [x,y] | x<-[0..6] , y<-[x..6] ]
@@ -41,8 +41,8 @@ jugadorComienzaInicio
     | [0,5] `elem` jugador2  = [[2],[0,5]]
     | [2,3] `elem` jugador1 = [[1],[2,3]]
     | [2,3] `elem` jugador2  = [[2],[2,3]]
-    | [6,4] `elem` jugador1 = [[1],[6,4]]
-    | [6,4] `elem` jugador2  = [[2],[6,4]]
+    | [4,6] `elem` jugador1 = [[1],[6,4]]
+    | [4,6] `elem` jugador2  = [[2],[6,4]]
     | [1,4] `elem` jugador1 = [[1],[1,4]]
     | [1,4] `elem` jugador2  = [[2],[1,4]]
     | otherwise =[[0],[0,0]]
@@ -120,7 +120,31 @@ quienGanador turnoActual puntosJugadorSig alMutiploCercano sacaTurnoNuevo puntos
     | puntosJugadorSig > puntosJugadorN = (turnoActual, (alMutiploCercano+puntosJugadorSig))
     | otherwise = (sacaTurnoNuevo, (alMutiploCercano + puntosJugadorN))
 
+conQuienJuego::  [Char] -> String
+conQuienJuego opcion 
+    | opcion == "2" = "Eres el jugador 2 "
+    | otherwise = "Juego entre computadora"
+
+
+yoPongoFicha:: [Int] -> [[Int]] -> [Char] -> IO [Int]
+yoPongoFicha quePone jugador2 muestra = do
+    if muestra == "2"
+        then do
+            putStrLn ("Si tienes la ficha [5,5] esa tienes que poner, de lo contrario, selecciona la ficha que quieres poner (multiplo de 5), la seleccion de fichas debe ser su posicion del 1 al "++ show (length jugador2 ) ++ ":  ")
+            fichaSelecciono <- getLine 
+            let fichaSeleccion = read fichaSelecciono :: Int
+            let fichaQuePongo = jugador2!!(fichaSeleccion-1)
+            return fichaQuePongo
+        else do
+            return quePone
+     
+    
+
 main = do
+    putStrLn "Si desea jugar contra la maquina oprima 2, de lo contrario 1" 
+    muestra <- getLine
+    let quienJuega = conQuienJuego muestra
+    print quienJuega
     print "INICIA EL JUEGO"
     putStrLn ("FICHAS JUGADOR 1: " ++ show jugador1 )
     putStrLn ("FICHAS JUGADOR 2: " ++ show jugador2 )
@@ -129,7 +153,7 @@ main = do
     let quienIniciaTodo = jugadorComienzaInicio
     let quienInicia = quienIniciaTodo!!0
     let queTrae = quienIniciaTodo!!1
-    putStrLn ("TURNO JUGADOR: " ++ show quienInicia ++ "INICIA CON CARTA: " ++ show queTrae)
+    putStrLn ("TURNO JUGADOR: " ++ show quienInicia ++ "  INICIA CON CARTA: " ++ show queTrae)
     if quienInicia!!0 == 1
         then do
             let quePone = fichaPone jugador1 1 queTrae
@@ -140,13 +164,14 @@ main = do
             putStrLn ("Lista Horizontal: " ++ show listaHorizontal)
             putStrLn ("Lista Vertical: " ++ show listaVertical)
             siguienteTurno listaHorizontal listaVertical listaJugadorN 2 jugador2 0 0 fichasRestantes
-        else do
+        else do           
             let quePone = fichaPone jugador2 2 queTrae
+            yoPongoFicha1 <- yoPongoFicha queTrae jugador2 muestra
             let listaJugadorN = quePone 
-            let listaHorizontal = concatenaFichaConLista 1 [] queTrae 1
-            let listaVertical = concatenaFichaConLista 0 [] queTrae 1
+            print yoPongoFicha1
+            let listaHorizontal = concatenaFichaConLista 1 [] yoPongoFicha1 1
+            let listaVertical = concatenaFichaConLista 0 [] yoPongoFicha1 1
             print "INICIO LISTAS:"
-
             putStrLn ("Lista Horizontal: " ++ show listaHorizontal)
             putStrLn ("Lista Vertical: " ++ show listaVertical)
             siguienteTurno listaHorizontal listaVertical listaJugadorN 1 jugador1 0 0 fichasRestantes

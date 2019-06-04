@@ -9,11 +9,8 @@ sumaPosibles = [5,10,15,20,25,30,35,40,45,50,55,60]
 fichas :: [[Int]]
 fichas = [ [x,y] | x<-[0..6] , y<-[x..6] ]
 
-random1 :: [Int]
-random1 = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab]
-
 fichasNumeradas :: [(Int, [Int])]
-fichasNumeradas = [ (x,y) | (x,y) <- zip random1 fichas]
+fichasNumeradas = [ (x,y) | (x,y) <- zip listaRandomInt fichas]
 
 fichasDesordenadas :: [(Int, [Int])]
 fichasDesordenadas = sortBy (comparing $ fst) fichasNumeradas
@@ -33,19 +30,20 @@ jugador2 = take 7 fichasDesordenadas1
 fichasRestantes :: [[Int]]
 fichasRestantes = drop 7 fichasDesordenadas1
 
+multiplos5 :: [[Int]]
+multiplos5 = [ [x,y] | x<-[0..6] , y<-[x..6], (x+y) `mod` 5 == 0, [x,y] /= [0,0] ]
+
+jugador1ComienzaInicio = take 1 [ x | x <- multiplos5, x `elem` jugador1]
+jugador2ComienzaInicio = take 1 [ x | x <- multiplos5, x `elem` jugador2]
+
+jugador1Head = if jugador1ComienzaInicio /= [] then head jugador1ComienzaInicio else [0,0]
+jugador2Head = if jugador2ComienzaInicio /= [] then head jugador2ComienzaInicio else [0,0]
+
 jugadorComienzaInicio :: [[Int]]
-jugadorComienzaInicio 
-    | [5,5] `elem` jugador1 =[[1],[5,5]]
-    | [5,5] `elem` jugador2  =[[2],[5,5]]
-    | [0,5] `elem` jugador1 =[[1],[0,5]]
-    | [0,5] `elem` jugador2  = [[2],[0,5]]
-    | [2,3] `elem` jugador1 = [[1],[2,3]]
-    | [2,3] `elem` jugador2  = [[2],[2,3]]
-    | [6,4] `elem` jugador1 = [[1],[6,4]]
-    | [6,4] `elem` jugador2  = [[2],[6,4]]
-    | [1,4] `elem` jugador1 = [[1],[1,4]]
-    | [1,4] `elem` jugador2  = [[2],[1,4]]
-    | otherwise =[[0],[0,0]]
+jugadorComienzaInicio =
+    if jugador1Head == [0,0] && jugador2Head == [0,0] then [[0],[0,0]]
+    else if jugador1Head /= [0,0] then [[1],jugador1Head]
+    else [[2],jugador2Head]
 
 fichaPone ::[[Int]] -> Int -> [Int] -> [[Int]] 
 fichaPone listaJugador turno aBorrar
@@ -106,14 +104,7 @@ sumaFichasQuedantes:: [[Int]]->Int
 sumaFichasQuedantes listaQueda = sum(concat listaQueda)
 
 sumaAlMultiploCercano::Int ->Int
-sumaAlMultiploCercano suma
-    | suma < 10 = 5
-    | suma < 15 = 10
-    | suma < 20 = 15
-    | suma < 25 = 20
-    | suma < 30 = 25
-    | suma < 35 = 30
-    | otherwise = 35
+sumaAlMultiploCercano suma = 5 * (suma `div` 5)
 
 quienGanador :: Int -> Int-> Int -> Int -> Int->(Int , Int)
 quienGanador turnoActual puntosJugadorSig alMutiploCercano sacaTurnoNuevo puntosJugadorN 

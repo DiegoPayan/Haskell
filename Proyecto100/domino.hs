@@ -66,18 +66,22 @@ tomaCabecera xs = head xs
 tomaUltimo :: [[Int]] -> [Int]
 tomaUltimo xs = last xs
 
-verificaQuePone :: [Int]->[Int]->[[Int]] ->[[Int]]->([Int],[[Int]],[[Int]])
-verificaQuePone cabecera ultimo jugadorAct fichasRestantes 
+verificaQuePone :: [Int]->[Int]->[[Int]] ->[[Int]] ->[Int]->[Int]->[Char]-> Int-> [Int]->([Int],[[Int]],[[Int]])
+verificaQuePone cabecera ultimo jugadorAct fichasRestantes fichaQueMando mifichita2 muestra turnoActual fichaQueMando2
+    | muestra == "2" &&  turnoActual == 2 && length mifichita2 > 0 && head fichaQueMando2 == head cabecera  = (fichaQueMando2 ++ [ (mifichita2!!1), 1 ,(mifichita2!!2)],fichasRestantes, jugadorAct)
+    | muestra == "2" &&  turnoActual == 2 && length mifichita2 > 0 && last fichaQueMando2 == head cabecera =  (fichaQueMando2 ++[ (mifichita2!!1), 1 ,(mifichita2!!2)],fichasRestantes, jugadorAct)
+    | muestra == "2" &&  turnoActual == 2 && length mifichita2 > 0 && head fichaQueMando2 == last ultimo =  (fichaQueMando2 ++[ (mifichita2!!1), 1 ,(mifichita2!!2)],fichasRestantes, jugadorAct)
+    | muestra == "2" &&  turnoActual == 2 && length mifichita2 > 0 && last fichaQueMando2 == last ultimo =  (fichaQueMando2 ++[ (mifichita2!!1), 1 ,(mifichita2!!2)], fichasRestantes, jugadorAct)
     | length (filter (elem (head cabecera)) jugadorAct) > 0 && head (filter (elem (head cabecera)) jugadorAct) !!0 == head cabecera= (head (filter (elem (head cabecera)) jugadorAct) ++ [1,1,1], fichasRestantes ,jugadorAct)--1=reversa 1=horizontal 1=derecha 0=izquiera
     | length (filter (elem (head cabecera)) jugadorAct) > 0 && head (filter (elem (head cabecera)) jugadorAct) !!1 == head cabecera=( head (filter (elem (head cabecera)) jugadorAct) ++ [0,1,1],fichasRestantes,jugadorAct)--1=reversa 1=horizontal 1=derecha 0=izquiera
     | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!1 == last ultimo = (head (filter (elem (last ultimo)) jugadorAct) ++ [1,1,0],fichasRestantes ,jugadorAct)--0=dejalacomoesta 
     | length (filter (elem (last ultimo)) jugadorAct ) > 0 && head (filter (elem (last ultimo)) jugadorAct)!!0 == last ultimo  =( head (filter (elem (last ultimo)) jugadorAct) ++ [0,1,0], fichasRestantes,jugadorAct)--0=dejalacomoesta 
     | length fichasRestantes == 0 = ([100,100,0,0,0], fichasRestantes,jugadorAct) --100 sin cartas restantes
     | length jugadorAct == 0 = ([10,10,0,0,0], fichasRestantes,jugadorAct) --10 sin cartas
-    | otherwise = comeFichas cabecera ultimo jugadorAct fichasRestantes 
+    | otherwise = comeFichas cabecera ultimo jugadorAct fichasRestantes fichaQueMando mifichita2 muestra turnoActual fichaQueMando2
 
-comeFichas  :: [Int] -> [Int] -> [[Int]] -> [[Int]] -> ([Int], [[Int]],[[Int]])
-comeFichas cabecera ultimo jugadorAct fichasRestantes = verificaQuePone cabecera ultimo fichasNuevasJugador (drop 1 fichasRestantes)
+comeFichas  ::  [Int]->[Int]->[[Int]] ->[[Int]] ->[Int]->[Int]->[Char]-> Int->[Int]->([Int],[[Int]],[[Int]])
+comeFichas cabecera ultimo jugadorAct fichasRestantes fichaQueMando  mifichita2 muestra  turnoActual fichaQueMando2 = verificaQuePone cabecera ultimo fichasNuevasJugador (drop 1 fichasRestantes) fichaQueMando2 mifichita2 muestra turnoActual fichaQueMando2
     where fichasNuevasJugador = jugadorAct ++ take 1 fichasRestantes
    
            
@@ -163,7 +167,7 @@ main = do
             print "INICIO LISTAS: "
             putStrLn ("Lista Horizontal: " ++ show listaHorizontal)
             putStrLn ("Lista Vertical: " ++ show listaVertical)
-            siguienteTurno listaHorizontal listaVertical listaJugadorN 2 jugador2 0 0 fichasRestantes
+            siguienteTurno listaHorizontal listaVertical listaJugadorN 2 jugador2 0 0 fichasRestantes muestra []
         else do           
             let quePone = fichaPone jugador2 2 queTrae
             yoPongoFicha1 <- yoPongoFicha queTrae jugador2 muestra
@@ -174,10 +178,14 @@ main = do
             print "INICIO LISTAS:"
             putStrLn ("Lista Horizontal: " ++ show listaHorizontal)
             putStrLn ("Lista Vertical: " ++ show listaVertical)
-            siguienteTurno listaHorizontal listaVertical listaJugadorN 1 jugador1 0 0 fichasRestantes
+            siguienteTurno listaHorizontal listaVertical listaJugadorN 1 jugador1 0 0 fichasRestantes muestra []
 
+sacoFicha :: [[Int]]-> [Int]-> Int -> [Char]-> [Int]
+sacoFicha lista posicion turnoActual muestra
+            | muestra =="2" && turnoActual==2 && length posicion > 0 = lista!!((posicion!!0)-1)
+            | otherwise = []
            
-siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJugadorSig puntosJugadorN puntosJugadorSig fichasRestantes= do
+siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJugadorSig puntosJugadorN puntosJugadorSig fichasRestantes muestra mifichita= do
     print "____________________________________________________________________________________________________-___________"
     putStrLn ("SIGUIENTE TURNO: JUGADOR= " ++ show turnoActual)
     putStrLn("LISTA DEL JUGADOR: " ++ show listaJugadorSig)
@@ -185,9 +193,25 @@ siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJuga
     let sacaTurnoNuevo = sacaTurno turnoActual
     let cabecera = tomaCabecera listaHorizontal
     let ultimo = tomaUltimo listaHorizontal
-    let (fichaQuePondra, fichasRestantes1,fichasNuevasJugador) = verificaQuePone cabecera ultimo listaJugadorSig fichasRestantes
+    let fichaQueMando2 = sacoFicha listaJugadorSig mifichita turnoActual muestra
+    print fichaQueMando2
+    if muestra =="2" && turnoActual==2 && mifichita == []
+        then do 
+            putStrLn ("Seleccione la ficha a poner en la lista, la seleccion debe ser su posicion 1-" ++ show (length listaJugadorSig) ++ "[posicion, derecha(1)/izquierda(0), reversa(1)/reversano(0)]")
+            fichitaQuePongo <- getLine 
+            let mifichita2 = read fichitaQuePongo ::[Int] 
+           
+            -- let aPonerFicha = verificaQuePone cabecera ultimo listaJugadorSig fichasRestantes fichaQueMando mifichita2 muestra turnoActual
+            siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJugadorSig puntosJugadorN puntosJugadorSig fichasRestantes muestra mifichita2 
+        else do
+            print ""
+    let (fichaQuePondra, fichasRestantes1,fichasNuevasJugador) = verificaQuePone cabecera ultimo listaJugadorSig fichasRestantes fichaQueMando2 mifichita muestra turnoActual fichaQueMando2
     let fichita = (take 2 fichaQuePondra)
-    putStrLn ("Fichas restantes para comer: " ++ show fichasRestantes1)
+    print mifichita
+    print fichita
+    
+
+    putStrLn ( "Fichas restantes para comer: " ++ show fichasRestantes1)
     if (fichita == [100,100] && length fichasRestantes1 == 0 ) || (fichita ==[10,10]|| length listaJugadorN == 0 )
         then do
             let fichasDelQueTieneAun = sumaFichasQuedantes fichasNuevasJugador
@@ -213,5 +237,6 @@ siguienteTurno listaHorizontal listaVertical listaJugadorN turnoActual listaJuga
             print listaNuevaHorizontal   
             let (turno, puntosAct) =  verificaSiGanaPuntos turnoActual puntosJugadorSig listaNuevaHorizontal
             putStrLn ("PUNTOS:" ++ show puntosAct)
-            siguienteTurno listaNuevaHorizontal listaVertical listaJugadorNueva  sacaTurnoNuevo  listaJugadorN  puntosAct puntosJugadorN  fichasRestantes1
+            let fichaVacia=[]
+            siguienteTurno listaNuevaHorizontal listaVertical listaJugadorNueva  sacaTurnoNuevo  listaJugadorN  puntosAct puntosJugadorN  fichasRestantes1 muestra fichaVacia
      
